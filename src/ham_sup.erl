@@ -62,9 +62,12 @@ init([]) ->
     Connections = {mcon_sup, {mcon_sup, start_link, []},
 	      Restart, Shutdown, supervisor, [mcon_sup]},
     Functions = {ham_fun_storage,  {ham_fun_storage, start_link, []},
-		 Restart, Shutdown, worker, [ham_fun_storage]},
-
-    {ok, {SupFlags, [Connections, Functions]}}.
+		    Restart, Shutdown, worker, [ham_fun_storage]},
+    DB = {mdb_sup,  {mdb_sup, start_link, []},
+ 		 Restart, Shutdown, supervisor, [mdb_sup]},
+ 		Commands = {mcmd_sup,  {mcmd_sup, start_link, []},
+ 		 Restart, Shutdown, supervisor, [mcmd_sup]},
+    {ok, {SupFlags, [DB, Commands, Functions, Connections]}}.
 
 %%%===================================================================
 %%% Internal functions
