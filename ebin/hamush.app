@@ -36,6 +36,6 @@
              mcmd_worker_sup,
              mushcmd]},
   {registered, []},
-  {applications, [kernel, stdlib, mushdb, mushcmd]},
+  {applications, [kernel, stdlib]},
   {mod, {ham_app, []}}
  ]}.

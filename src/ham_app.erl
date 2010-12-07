@@ -45,6 +45,7 @@
 start(_StartType, _StartArgs) ->
     case ham_sup:start_link() of
 	{ok, Pid} ->
+	    mdb_store:init(),
 	    lists:foreach(fun load/1, ?CMD_MODULES),
 	    RoomOne = hamush:create(room, "Room One"),
 	    hamush:set(RoomOne, "DESCRIPTION", "This is the first room."),

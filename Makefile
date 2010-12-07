@@ -21,8 +21,8 @@ clean:
 ebin/%.beam: src/%.erl
 	$(CC) $(CC_FLAGS) -o $(BIN_DIR) $<
 
-run: all
-	$(ERL) $(RUN_FLAGS) -pa $(BIN_DIR) -eval "toolbar:start(), application:start(sasl), application:start(mushdb), application:start(mushcmd), application:start($(PROJECT))."
+run: #all
+	$(ERL) $(RUN_FLAGS) -pa $(BIN_DIR) -eval "toolbar:start(), application:start(sasl), application:start($(PROJECT))."
 
 doc:
 	$(ERL) -eval 'edoc:application($(PROJECT), "", []).'
