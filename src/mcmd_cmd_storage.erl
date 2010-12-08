@@ -19,6 +19,16 @@
 
 -define(SERVER, ?MODULE). 
 
+-define(CMD_MODULES, [cmds_interaction,
+                      cmds_initial,
+                      cmds_movement,
+                      cmds_creation,
+                      fun_privileged,
+                      fun_core,
+                      fun_lists,
+                      fun_communication]).
+
+
 -record(state, {cmds=dict:new()}).
 
 %%%===================================================================
@@ -62,7 +72,8 @@ register(Cmd, Code) ->
 %% @end
 %%--------------------------------------------------------------------
 init([]) ->
-    {ok, #state{cmds=dict:new()}}.
+    {ok, #state{cmds=dict:new()}, 100}.
+
 
 %%--------------------------------------------------------------------
 %% @private
@@ -79,16 +90,16 @@ init([]) ->
 %% @end
 %%--------------------------------------------------------------------
 handle_call({get, Cmd}, _From, #state{cmds = Cmds} = State) ->
-    try
-	[F] = dict:fetch(Cmd, Cmds),
-	{reply, {ok, F}, State}
-    catch
-	_Class:_Error ->
-	    {reply, not_found, State}
-    end;
+  try
+    [F] = dict:fetch(Cmd, Cmds),
+    {reply, {ok, F}, State}
+  catch
+    _Class:_Error ->
+      {reply, not_found, State}
+  end;
 handle_call(_Request, _From, State) ->
-    Reply = ok,
-    {reply, Reply, State}.
+  Reply = ok,
+  {reply, Reply, State}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -101,8 +112,10 @@ handle_call(_Request, _From, State) ->
 %% @end
 %%--------------------------------------------------------------------
 handle_cast({register, Cmd, Code}, #state{cmds = Cmds} = State) ->
+    io:format("register: ~s~n", [Cmd]),
     {noreply, State#state{cmds = dict:append(Cmd, Code, Cmds)}};
 handle_cast(_Msg, State) ->
+    io:format("oops~n"),
     {noreply, State}.
 
 %%--------------------------------------------------------------------
@@ -115,8 +128,11 @@ handle_cast(_Msg, State) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
+handle_info(timeout, State) ->
+  lists:foreach(fun load/1, ?CMD_MODULES),
+  {noreply, State};
 handle_info(_Info, State) ->
-    {noreply, State}.
+  {noreply, State}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -146,3 +162,7 @@ code_change(_OldVsn, State, _Extra) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
+
+load(Module) ->
+  io:format("load: ~w~n", [Module]),
+  erlang:apply(Module, init, []).

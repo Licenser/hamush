@@ -79,12 +79,13 @@ init([]) ->
 %% @end
 %%--------------------------------------------------------------------
 handle_call({get, Cmd}, _From, #state{cmds = Cmds} = State) ->
-    try
-	[F] = dict:fetch(Cmd, Cmds),
-	{reply, {ok, F}, State}
-    catch
-	_Class:_Error ->
-	    {reply, not_found, State}
+  try
+    io:format("register: ~s~n", [Cmd]),
+    [F] = dict:fetch(Cmd, Cmds),
+    {reply, {ok, F}, State}
+  catch
+    _Class:_Error ->
+      {reply, not_found, State}
     end;
 handle_call(_Request, _From, State) ->
     Reply = ok,

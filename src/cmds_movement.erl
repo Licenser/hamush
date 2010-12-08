@@ -11,13 +11,13 @@
 -export([init/0]).
 
 init() ->
-       mcmd_cmd_storage:register("go", fun go/2).
+  mcmd_cmd_storage:register("go", fun go/2).
 
 go ({_Pid, ObjID}, [To | _]) when is_integer(ObjID), is_pid(_Pid) ->
-    case hamush:resolve(ObjID, To)  of
-	{ok, Exit} -> 
-	    {ok, Dest} = hamush:get(Exit, home),
-	    hamush:move_to(ObjID, Dest);
-	{not_found, _} -> hamush:pemit(ObjID, "You can’t go that way.\n");
-	{found_too_many, _} -> hamush:pemit(ObjID, "I don't know what way to go.\n")
-    end.
+  case hamush:resolve(ObjID, To)  of
+    {ok, Exit} -> 
+      {ok, Dest} = hamush:get(Exit, home),
+      hamush:move_to(ObjID, Dest);
+    {not_found, _} -> hamush:pemit(ObjID, "You can’t go that way.\n");
+    {found_too_many, _} -> hamush:pemit(ObjID, "I don't know what way to go.\n")
+  end.

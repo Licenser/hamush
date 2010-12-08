@@ -11,7 +11,7 @@
 -export([init/0]).
 
 init () ->
-    mcmd_cmd_storage:register("create", fun create/2),
+    mcmd_cmd_storage:register("@create", fun create/2),
     mcmd_cmd_storage:register("@dig", fun dig/2).
 
 create ({_Pid, ObjID}, [Name | _]) when is_integer(ObjID), is_pid(_Pid) ->

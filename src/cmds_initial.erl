@@ -11,7 +11,7 @@
 -export([init/0]).
 
 init() ->
-       mcmd_cmd_storage:register("connect", fun connect/2).
+  mcmd_cmd_storage:register("connect", fun connect/2).
 
 connect ({Pid, undef}, [Login | _]) when  is_pid(Pid)->
     [Name, Password] = string:tokens(Login, " "),
