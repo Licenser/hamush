@@ -36,7 +36,7 @@ exits(ObjID) when is_integer(ObjID) ->
 move_to(ObjID, RoomID) when is_integer(ObjID), is_integer(RoomID)->
     Location = hamush:location(ObjID),
     hamush:remit_but(Location, [ObjID], "~s has left.~n", [hamush:name(ObjID)]),
-    mdb_store:location(ObjID, RoomID),
+    fset(ObjID, location, RoomID),
     hamush:pemit(ObjID, desc(RoomID, ObjID)),
     hamush:remit_but(RoomID, [ObjID], "~s has left.~n", [hamush:name(ObjID)]).
 

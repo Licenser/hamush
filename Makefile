@@ -22,7 +22,7 @@ run: all
 	$(ERL) $(RUN_FLAGS) -pa $(BIN_DIR) -eval "application:start(sasl), application:start($(PROJECT))."
 
 shell: all
-	$(ERL) $(RUN_FLAGS) -pa $(BIN_DIR)
+	$(ERL) $(RUN_FLAGS) -pa $(BIN_DIR) -eval "application:start(sasl)."
 
 doc:
 	$(ERL) -eval 'edoc:application($(PROJECT), "", []).'

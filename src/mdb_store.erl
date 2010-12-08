@@ -9,6 +9,9 @@
 -module(mdb_store).
 
 -export([init/0,
+         load/0,
+         load/1,
+         update/2,
 	 create/0, create/1, create/2, create/3,
 	 delete/1, 
 	 lookup/1, lookup/2,
@@ -31,6 +34,27 @@ init() ->
     ets:insert(?TABLE_ID, {'Next ID', 0}),
     Table.
 
+load(Id) ->
+  NextID = ets:lookup(?TABLE_ID, 'Next ID'),
+  if 
+     NextID < Id ->
+       ets:insert(?TABLE_ID, {'Next ID', Id + 1});
+     NextID =:= Id ->
+       ets:insert(?TABLE_ID, {'Next ID', Id + 1}) 
+  end,
+  {ok, Obj} = mdb_element:create(Id),
+  insert(Id, Obj),
+  lists:foreach(
+    fun({Attr, Value}) ->
+      hamush:set(Obj, Attr, Value)
+    end,
+    mdb_backend:get_object(Id)).
+load() ->
+    lists:foreach(
+      fun load/1,
+      mdb_backend:objects()).
+                 
+
 next_id() ->
     [{'Next ID', NextID}] = ets:lookup(?TABLE_ID, 'Next ID'),
     ets:insert(?TABLE_ID, {'Next ID', NextID + 1}),
@@ -52,6 +76,17 @@ create(Type, Name, Location) ->
     insert(NextID, Type, Name, Location, Element),
     NextID.
 
+update(ObjID, {name, Name}) ->
+  ets:update_element(?TABLE_ID, ObjID, {?POS_name, Name});
+update(ObjID, {type, Type}) ->
+  ets:update_element(?TABLE_ID, ObjID, {?POS_type, Type});
+update(ObjID, {location, Location}) ->
+  ets:update_element(?TABLE_ID, ObjID, {?POS_location, Location});
+update(_, {_, _}) -> 
+  ok.
+
+insert(ID, Pid) ->
+    ets:insert(?TABLE_ID, {ID, object, "Unnamed", 0, Pid}).
 insert(ID, Type, Name, Location, Pid) ->
     ets:insert(?TABLE_ID, {ID, Type, Name, Location, Pid}).
 

@@ -43,24 +43,30 @@
 %% @end
 %%--------------------------------------------------------------------
 start(_StartType, _StartArgs) ->
+    mdb_store:init(),
     case ham_sup:start_link() of
 	{ok, Pid} ->
-	    mdb_store:init(),
-%	    lists:foreach(fun load/1, ?CMD_MODULES),
-%	    RoomOne = hamush:create(room, "Room One"),
-%	    hamush:set(RoomOne, "DESCRIPTION", "This is the first room."),
-%	    God = hamush:create(user, "God", RoomOne),
-%	    RoomTwo = hamush:create(room, "Room Two"),
-%	    hamush:set(RoomTwo, "DESCRIPTION", "This is the second room."),
-%	    Otto = hamush:create(user, "Otto", RoomOne),
-%	    Door12 = hamush:create(exit, "Two", RoomOne),
-%	    Door21 = hamush:create(exit, "One", RoomTwo),
-%	    hamush:fset(God, "PASSWORD", "123"),
-%	    hamush:fset(Otto, "PASSWORD", "123"),
-%	    hamush:set(Door12, home, RoomTwo),
-%	    hamush:set(Door21, home, RoomOne),
-%	    hamush:set(God, home, RoomOne),
-%	    hamush:set(Otto, home, RoomOne),
+            case mdb_backend:count() of
+            0 ->
+       	      lists:foreach(fun load/1, ?CMD_MODULES),
+	      RoomOne = hamush:create(room, "Room One"),
+	      hamush:set(RoomOne, "DESCRIPTION", "This is the first room."),
+	      God = hamush:create(user, "God", RoomOne),
+	      RoomTwo = hamush:create(room, "Room Two"),
+	      hamush:set(RoomTwo, "DESCRIPTION", "This is the second room."),
+	      Otto = hamush:create(user, "Otto", RoomOne),
+  	      Door12 = hamush:create(exit, "Two", RoomOne),
+	      Door21 = hamush:create(exit, "One", RoomTwo),
+	      hamush:fset(God, "PASSWORD", "123"),
+	      hamush:fset(Otto, "PASSWORD", "123"),
+	      hamush:set(Door12, home, RoomTwo),
+	      hamush:set(Door21, home, RoomOne),
+	      hamush:set(God, home, RoomOne),
+	      hamush:set(Otto, home, RoomOne);
+            _ -> 
+              mdb_store:load(),
+              ok
+            end,
 	    {ok, Pid};
 	Error ->
 	    Error

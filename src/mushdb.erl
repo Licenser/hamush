@@ -24,6 +24,7 @@
 set(ID, Attr, Value) ->
     case mdb_store:lookup(ID) of
 	{ok, Pid} ->
+            mdb_store:update(ID, Attr, Value),
 	    mdb_element:set(Pid, Attr, Value);
 	{error, _} ->
 	    {ok, Pid} = mdb_element:create(ID),

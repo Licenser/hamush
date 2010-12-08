@@ -1,19 +1,20 @@
 -module(mdb_backend).
+-include_lib("stdlib/include/qlc.hrl").
 
 -behaviour(gen_server).
 
 %% API
--export([start_link/0, insert/3]).
+-export([start_link/0, insert/3,count/0, objects/0, get_object/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
 	 terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
--define(TABLE, attributes).
+-define(TABLE, attribute).
 
 
--record(attribute, {object_id, attr_name, attr_value}).
+-record(attribute, {attr_id, attr_value}).
 -record(state, {server=node(), table=attribute}).
 
 start_link() ->
@@ -21,6 +22,15 @@ start_link() ->
 
 insert(ObjID, Name, Value) ->
   gen_server:call(?SERVER, {insert, ObjID, Name, Value}).
+
+objects() ->
+  gen_server:call(?SERVER, objects).
+
+get_object(Id) ->
+  gen_server:call(?SERVER, {get_object, Id}).
+
+count() ->
+  gen_server:call(?SERVER, count).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -63,17 +73,37 @@ init([]) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
+handle_call(count, _From, State) ->
+  {atomic, Elements} = mnesia:transaction( 
+    fun() ->
+        qlc:eval( qlc:q(
+            [ X || X <- mnesia:table(?TABLE) ] 
+        )) 
+    end),
+  {reply, length(Elements), State};
+handle_call(objects, _From, State) ->
+  {atomic, Objects} = mnesia:transaction(
+    fun() -> qlc:eval(qlc:q(
+      [ Id || {attribute, {Id, _}, _} <- mnesia:table(attribute) ], 
+      {unique, true}
+    ))end),
+  {reply, Objects, State};
+handle_call({get_object, Id}, _From, State) ->
+  {atomic, Attrs} = mnesia:transaction(
+    fun() -> qlc:eval(qlc:q(
+      [ {Attr, Value} || {attribute, {ObjId, Attr}, Value} <- mnesia:table(attribute), Id =:= ObjId ]
+    ))end),
+  {reply, Attrs, State};
 handle_call({insert, ObjID, Name, Value}, _From, State) ->
   Fun = fun() ->
           mnesia:write(
-            ?TABLE,
-            #attribute{object_id=ObjID,
-                       attr_name=Name,
-                       attr_value=Value},
-            write)
+            #attribute{attr_id={ObjID, Name},
+                       attr_value=Value})
         end,
-  mnesia:transaction(Fun),
-  {reply, ok, State}.
+  case mnesia:transaction(Fun) of
+	{atomic,_} -> {reply, ok, State};
+	F -> {reply, {failed, F}, State}
+  end.
 
 
 %%--------------------------------------------------------------------
