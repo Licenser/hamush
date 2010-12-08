@@ -48,7 +48,7 @@ create(Type, Name) ->
 create(Type, Name, Location) ->
     NextID = next_id(),
     mdb_event:create(NextID),
-    {ok, Element} = mdb_element:create(),
+    {ok, Element} = mdb_element:create(NextID),
     insert(NextID, Type, Name, Location, Element),
     NextID.
 
@@ -70,7 +70,7 @@ match({Type, Name, Location}) ->
 
 lookup(ID, Attr) ->
     case lookup(ID) of
-	{ok, Pid} -> mdb_element:fetch(Pid, Attr);
+	{ok, Pid} -> mdb_element:get(Pid, Attr);
 	Error -> Error
     end.
 

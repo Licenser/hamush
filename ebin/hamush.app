@@ -27,6 +27,7 @@
              mdb_store,
              mdb_store_sup,
              mdb_sup,
+             mdb_backend,
              mushdb,
              %cmd Part
              mcmd_app,

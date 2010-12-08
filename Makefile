@@ -5,7 +5,7 @@ CC=erlc
 ERL=erl
 CC_FLAGS=+debug_info -I include
 RUN_FLAGS=
-BEAMS=ebin/ham_app.beam ebin/mcon_sup.beam ebin/mcon_con_sup.beam ebin/mcon_listener.beam ebin/mcon_connection.beam ebin/hamush.beam ebin/cmds_interaction.beam ebin/cmds_movement.beam ebin/cmds_initial.beam ebin/cmds_creation.beam ebin/ham_sup.beam ebin/ham_lisp.beam ebin/ham_fun_storage.beam ebin/fun_core.beam ebin/fun_communication.beam ebin/fun_lists.beam ebin/fun_privileged.beam ebin/mushdb.beam ebin/mdb_app.beam ebin/mdb_element.beam ebin/mdb_event.beam ebin/mdb_store.beam ebin/mdb_store_sup.beam ebin/mdb_sup.beam ebin/mcmd_app.beam ebin/mcmd_cmd_storage.beam ebin/mcmd_sup.beam ebin/mcmd_worker.beam ebin/mcmd_worker_sup.beam ebin/mushcmd.beam
+BEAMS=ebin/ham_app.beam ebin/mcon_sup.beam ebin/mcon_con_sup.beam ebin/mcon_listener.beam ebin/mcon_connection.beam ebin/hamush.beam ebin/cmds_interaction.beam ebin/cmds_movement.beam ebin/cmds_initial.beam ebin/cmds_creation.beam ebin/ham_sup.beam ebin/ham_lisp.beam ebin/ham_fun_storage.beam ebin/fun_core.beam ebin/fun_communication.beam ebin/fun_lists.beam ebin/fun_privileged.beam ebin/mushdb.beam ebin/mdb_app.beam ebin/mdb_element.beam ebin/mdb_event.beam ebin/mdb_store.beam ebin/mdb_store_sup.beam ebin/mdb_sup.beam ebin/mcmd_app.beam ebin/mcmd_cmd_storage.beam ebin/mcmd_sup.beam ebin/mcmd_worker.beam ebin/mcmd_worker_sup.beam ebin/mushcmd.beam ebin/mdb_backend.beam
 PROJECT=hamush
 
 
@@ -18,8 +18,11 @@ clean:
 ebin/%.beam: src/%.erl
 	$(CC) $(CC_FLAGS) -o $(BIN_DIR) $<
 
-run: #all
-	$(ERL) $(RUN_FLAGS) -pa $(BIN_DIR) -eval "toolbar:start(), application:start(sasl), application:start($(PROJECT))."
+run: all
+	$(ERL) $(RUN_FLAGS) -pa $(BIN_DIR) -eval "application:start(sasl), application:start($(PROJECT))."
+
+shell: all
+	$(ERL) $(RUN_FLAGS) -pa $(BIN_DIR)
 
 doc:
 	$(ERL) -eval 'edoc:application($(PROJECT), "", []).'

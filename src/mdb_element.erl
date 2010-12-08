@@ -11,9 +11,9 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/0,
+-export([start_link/1,
 	 add_connection/2,
-	 create/0,
+	 create/1,
 	 get/1,
 	 get/2,
 	 set/3,
@@ -28,7 +28,7 @@
 -define(SERVER, ?MODULE). 
 -define(DEFAULT_LEASE_TIME, (60 * 60 * 24)).
 
--record(state, {attrs=dict:new(), home=-1, connections=[]}).
+-record(state, {id=0, attrs=dict:new(), home=-1, connections=[]}).
 
 %%%===================================================================
 %%% API
@@ -42,11 +42,11 @@
 %% @spec start_link(Value) -> {ok, Pid} | ignore | {error, Error}
 %% @end
 %%--------------------------------------------------------------------
-start_link() ->
-    gen_server:start_link(?MODULE, [], []).
+start_link(Id) ->
+    gen_server:start_link(?MODULE, [Id], []).
 
-create() ->
-    mdb_store_sup:start_child().
+create(Id) ->
+    mdb_store_sup:start_child(Id).
 
 get(Pid) ->
     mdb_event:get(Pid),
@@ -90,8 +90,8 @@ hear(Pid, Message) ->
 %%                     {stop, Reason}
 %% @end
 %%--------------------------------------------------------------------
-init([]) ->
-    {ok, #state{}}.
+init([Id]) ->
+    {ok, #state{id=Id}}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -144,6 +144,7 @@ handle_cast({hear, Message}, #state{connections = Cons} = State) ->
 handle_cast({set, home, ID}, State) when is_integer(ID)->
     {noreply, State#state{home=ID}};
 handle_cast({set, Attr, Value}, State) ->
+    mdb_backend:insert(State#state.id, Attr, Value),
     {noreply, State#state{attrs=dict:append(Attr, Value, dict:erase(Attr, State#state.attrs))}}.
 
 

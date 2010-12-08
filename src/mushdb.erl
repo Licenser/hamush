@@ -26,7 +26,7 @@ set(ID, Attr, Value) ->
 	{ok, Pid} ->
 	    mdb_element:set(Pid, Attr, Value);
 	{error, _} ->
-	    {ok, Pid} = mdb_element:create(),
+	    {ok, Pid} = mdb_element:create(ID),
 	    mdb_element:set(Pid, Attr, Value),
 	    mdb_store:insert(ID, Pid)
     end.

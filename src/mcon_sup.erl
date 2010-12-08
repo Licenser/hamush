@@ -17,6 +17,7 @@
 -export([init/1]).
 
 -define(SERVER, ?MODULE).
+-define(PORT, 4224).
 
 %%%===================================================================
 %%% API functions
@@ -61,7 +62,7 @@ init([]) ->
 
     ConnectionSupervisor = {mcon_con_sup, {mcon_con_sup, start_link, []},
 	      Restart, Shutdown, supervisor, [mcon_con_sup]},
-    Listener = {mcon_listener, {mcon_listener, start_link, [4223]},
+    Listener = {mcon_listener, {mcon_listener, start_link, [?PORT]},
 	      Restart, Shutdown, worker, [mcon_listener]},    
 
     {ok, {SupFlags, [ConnectionSupervisor, Listener]}}.

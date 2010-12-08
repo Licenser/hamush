@@ -64,8 +64,10 @@ init([]) ->
 			Restart, Shutdown, Type, [mdb_store_sup]},
     EventServer = {mdb_event, {mdb_event, start_link, []},
 		  Restart, Shutdown, worker, [mdb_event]},
+    BackendServer = {mdb_backend, {mdb_backend, start_link, []},
+		  Restart, Shutdown, worker, [mdb_backend]},
 
-    {ok, {SupFlags, [StorageSuperviser, EventServer]}}.
+    {ok, {SupFlags, [StorageSuperviser, EventServer, BackendServer]}}.
 
 %%%===================================================================
 %%% Internal functions
