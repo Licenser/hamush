@@ -114,7 +114,12 @@ handle_cast(_Msg, State) ->
 %%--------------------------------------------------------------------
 handle_info({tcp, _Port, Data}, #state{object = ObjID, mode={repl, global}} = State) ->
   {ok, Pid} = mdb_store:lookup(ObjID),
-  hamush:pemit(self(), "~s\n> ", [mdb_element:eval(Pid, Data)]),
+  try 
+    Result = mdb_element:eval(Pid, Data),
+    hamush:pemit(self(), "~s\n> ", [Result])
+  catch
+    _:_ -> hamush:pemit(self(), "Ooops, something went wrong!")
+  end
   {noreply, State};
 handle_info({tcp, _Port, Data}, #state{object = ObjID, mode=object} = State) ->
     mushcmd:exec({self(), ObjID} , Data),

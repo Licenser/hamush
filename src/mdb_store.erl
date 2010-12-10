@@ -18,7 +18,7 @@
          name/1,
          location/1, location/2, 
          rename/2,
-         insert/5]).
+         insert/5, insert/2]).
 
 -define(TABLE_ID, ?MODULE).
 % {id, type, name, location, PID}
@@ -45,13 +45,8 @@ load(Id) ->
   end,
   [{'Next ID', NextID2}] = ets:lookup(?TABLE_ID, 'Next ID'),  
   io:format("id: ~w - ~w~n", [Id, NextID2]),
-  {ok, Obj} = mdb_element:create(Id),
-  insert(Id, Obj),
-  lists:foreach(
-    fun({Attr, Value}) ->
-      hamush:set(Id, Attr, Value)
-    end,
-    mdb_backend:get_object(Id)).
+  {ok, Obj} = mdb_element:create(Id).
+%  insert(Id, Obj).
 load() ->
     lists:foreach(
       fun load/1,

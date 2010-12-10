@@ -95,7 +95,8 @@ eval(Pid, Str) ->
 %% @end
 %%--------------------------------------------------------------------
 init([Id]) ->
-    {ok, #state{id=Id}}.
+  mdb_store:insert(Id, self()),
+  {ok, #state{id=Id}, 1}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -123,7 +124,7 @@ handle_call({eval, Str}, _From, #state{env = Env} = State) ->
     Reply = ham_lisp:run(Env, Str),
     {reply, Reply, State}
   catch
-    _:_ ->  {reply, "Opps, someting went wrong.", State}
+    _ ->  {reply, "Opps, someting went wrong.", State}
   end;
 handle_call({get, Attr}, _From, State) ->
     case dict:find(Attr, State#state.attrs) of
@@ -169,6 +170,14 @@ handle_cast({set, Attr, Value}, State) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
+handle_info(timeout, #state{id=Id} = State) ->
+  lists:foreach(
+    fun({Attr, Value}) ->
+      io:format("loading &~s ~w=~w\n", [Attr, Id, Value]),
+      hamush:set(Id, Attr, Value)
+    end,
+    mdb_backend:get_object(Id)),
+  {noreply, State};
 handle_info(_Info, State) ->
     {noreply, State}.
 
