@@ -34,7 +34,7 @@ tokenize(String, Tokens, [substring | UpperState] = State) ->
 	{match, [Str, [], [], Rest]} -> tokenize(Rest, [{string, Str} | Tokens], State)
     end;
 tokenize(String, Tokens, [code | UpperState] = State) ->
-    case re:run(String, "^(?:((?:[a-zA-Z*#-][a-zA-Z0-9+*/-]*|[+/*-]))|(['()])|(\\d+)|(\")|[\\s/m]+|(\\]))(.*)", [{capture, [1, 2, 3, 4, 5, 6], list}]) of
+    case re:run(String, "^(?:((?:[a-zA-Z*#-][a-zA-Z0-9+*/-]*|[+/*-]))|(['()])|(\\d+)|(\")|[\\s\\n\\r/m]+|(\\]))(.*)", [{capture, [1, 2, 3, 4, 5, 6], list}]) of
 	{match, [[], [], [], [], [], Rest]}  -> tokenize(Rest, Tokens, State);
 	{match, [Ident, [], [], [], [], Rest]} -> tokenize(Rest, [{ident, Ident} | Tokens], State);
 	{match, [[], [Symbol], [], [], [], Rest]} -> tokenize(Rest, [{symbol, Symbol} | Tokens], State);
@@ -74,16 +74,19 @@ eval(Elements) ->
     eval(dict:append(actor, 1, dict:new()), Elements).
 eval(_Env, []) -> "";
 eval(Env, {subterm, [F | Args]}) ->
-    {ok, [Privileged]} = dict:find(privileged, Env),
-    case eval(Env, F) of
-	{C, true, P} when not (P xor Privileged)  -> 
-	    As = lists:map(fun (A) -> 
-				   eval(Env, A)
-			   end, Args),
-	    C(Env, As);
-	{C, false, P}when  not (P xor Privileged) -> 
-	    C(Env, Args)
-    end;
+  Privileged = case dict:find(privileged, Env) of
+    {ok, [_]} -> true;
+    _ -> false
+  end,
+  case eval(Env, F) of
+    {C, true, P} when not (P xor Privileged)  -> 
+      As = lists:map(fun (A) -> 
+        eval(Env, A)
+      end, Args),
+      C(Env, As);
+    {C, false, P}when  not (P xor Privileged) -> 
+      C(Env, Args)
+  end;
 eval(Env, {subterm, Elements}) ->
     string:join(
       lists:map(fun (E) ->
@@ -109,14 +112,14 @@ eval(_Env, {list, L}) -> lists:map(fun (E) -> unroll(E) end, L);
 eval(_Env, {number, N}) -> N;
 eval(_Env, {string, S}) -> S;
 eval(Env, Elements) -> 
-    string:join(
-      lists:map(fun (E) ->
-			case eval(Env, E) of
-			    X when is_integer(X) -> 
-				[R] = io_lib:format("~w", [X]),
-				R;
-			    X -> X
-			end			  
+  string:join(
+    lists:map(fun (E) ->
+      case eval(Env, E) of
+        X when is_integer(X) -> 
+          [R] = io_lib:format("~w", [X]),
+          R;
+        X -> X
+			end
 		end, Elements), "").
 
 unroll({list, L}) -> lists:map(fun (E) -> unroll(E) end, L);

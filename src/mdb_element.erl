@@ -19,7 +19,8 @@
 	 set/3,
 	 delete/1,
 	 hear/2,
-	 get_state/1]).
+	 get_state/1,
+	 eval/2]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -28,7 +29,7 @@
 -define(SERVER, ?MODULE). 
 -define(DEFAULT_LEASE_TIME, (60 * 60 * 24)).
 
--record(state, {id=0, attrs=dict:new(), home=-1, connections=[]}).
+-record(state, {id=0, attrs=dict:new(), env=dict:new(), home=-1, connections=[]}).
 
 %%%===================================================================
 %%% API
@@ -72,7 +73,10 @@ delete(Pid) ->
     gen_server:cast(Pid, delete).
 
 hear(Pid, Message) ->
-    gen_server:cast(Pid, {hear, Message}).    
+    gen_server:cast(Pid, {hear, Message}). 
+
+eval(Pid, Str) ->
+  gen_server:call(Pid, {eval, Str}).
 
 
 %%%===================================================================
@@ -114,6 +118,13 @@ handle_call(state, _From, State) ->
     {reply, State, State};
 handle_call({get, home}, _From, #state{home = Home} = State) ->
     {reply, {ok, Home}, State};
+handle_call({eval, Str}, _From, #state{env = Env} = State) ->
+  try
+    Reply = ham_lisp:run(Env, Str),
+    {reply, Reply, State}
+  catch
+    _:_ ->  {reply, "Opps, someting went wrong.", State}
+  end;
 handle_call({get, Attr}, _From, State) ->
     case dict:find(Attr, State#state.attrs) of
 	{ok, [Value]} -> {reply, {ok, Value}, State};

@@ -38,8 +38,8 @@ dig ({_Pid, ObjID}, [Name]) when is_integer(ObjID), is_pid(_Pid) ->
     hamush:pemit(ObjID, "Room ~s (#~w) has been created.~n", [Name, NID]).
 
 repl ({Pid, _ObjID}, []) when is_integer(_ObjID), is_pid(Pid) ->
-  mcon_connection:set_mode({repl, global}),
-  hamush:pemit(Pid, "Entering REPL.~n> ").
+  mcon_connection:set_mode(Pid, {repl, global}),
+  hamush:pemit(Pid, "Entering REPL.\n> ").
 
 exit_to(Name, From, To) ->
     ToExit = hamush:create(exit, Name, From),
