@@ -12,6 +12,7 @@
 
 init () ->
     mcmd_cmd_storage:register("@create", fun create/2),
+    mcmd_cmd_storage:register("@repl", fun repl/2),
     mcmd_cmd_storage:register("@dig", fun dig/2).
 
 create ({_Pid, ObjID}, [Name | _]) when is_integer(ObjID), is_pid(_Pid) ->
@@ -32,13 +33,16 @@ dig ({_Pid, ObjID}, [Name, Exits]) when is_integer(ObjID), is_pid(_Pid) ->
 	    ExitFrom = exit_to(From, NID, Location),
 	    hamush:pemit(ObjID, "Exit ~s (#~w) from ~s has been created.~n", [To, ExitFrom, Name])
     end;
-
 dig ({_Pid, ObjID}, [Name]) when is_integer(ObjID), is_pid(_Pid) ->
     NID = hamush:create(room, Name),
     hamush:pemit(ObjID, "Room ~s (#~w) has been created.~n", [Name, NID]).
 
+repl ({Pid, _ObjID}, []) when is_integer(_ObjID), is_pid(Pid) ->
+  mcon_connection:set_mode({repl, global}),
+  hamush:pemit(Pid, "Entering REPL.~n> ").
 
 exit_to(Name, From, To) ->
     ToExit = hamush:create(exit, Name, From),
     hamush:set(ToExit, home, To),
     ToExit.
+

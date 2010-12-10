@@ -11,15 +11,15 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/1, send/2]).
+-export([start_link/1, send/2, connect_object/2, set_mode/2]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
-	 terminate/2, code_change/3, connect_object/2]).
+	 terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE). 
 
--record(state, {socket, object=undef}).
+-record(state, {socket, object=undef, mode=object}).
 
 %%%===================================================================
 %%% API
@@ -41,6 +41,9 @@ send(Pid, Text) ->
 
 connect_object(Pid, ObjID) when is_pid(Pid), is_integer(ObjID)->
     gen_server:cast(Pid, {connect_object, ObjID}).
+
+set_mode(Pid, Mode) ->
+    gen_server:cast(Pid, {set_mode, Mode}).
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================
@@ -91,6 +94,8 @@ handle_call(_Request, _From, State) ->
 handle_cast({send, Text}, #state{socket = Socket} = State) ->
     gen_tcp:send(Socket, Text),
     {noreply, State};
+handle_cast({set_mode, Mode}, State) ->
+    {noreply, State#state{mode = Mode}};
 handle_cast({connect_object, ObjID}, State) ->
     mushdb:add_connection(ObjID, self()),
     {noreply, State#state{object = ObjID}};
@@ -107,7 +112,11 @@ handle_cast(_Msg, State) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_info({tcp, _Port, Data}, #state{object = ObjID} = State) ->
+handle_info({tcp, _Port, Data}, #state{object = ObjID, mode={repl, global}} = State) ->
+    mushcmd:exec({self(), ObjID} , Data),
+    hamush:pemit("~w~n> ", [ham_lisp:run(Data)]),
+    {noreply, State};
+handle_info({tcp, _Port, Data}, #state{object = ObjID, mode=object} = State) ->
     mushcmd:exec({self(), ObjID} , Data),
     {noreply, State};
 handle_info(_Info, State) ->
