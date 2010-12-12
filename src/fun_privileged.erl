@@ -1,5 +1,5 @@
 %%%-------------------------------------------------------------------
-%%% @author Heinz N. Gies <heinz@Heinz-N-Giess-MacBook-Pro.local>
+%%% @author Heinz N. Gies <heinz@licenser.net> [http://blog.licenser.net]
 %%% @copyright (C) 2010, Heinz N. Gies
 %%% @doc
 %%%
@@ -12,15 +12,15 @@
 -export([init/0]).
 
 init () ->
-    ham_fun_storage:register("defun", {fun defun/2, false, true}).
+  ham_fun_storage:register("defun", {fun defun/2, false, true}).
 
 defun(Env, [Function, LocalForm | Body]) ->
-    {subterm, Locals} = LocalForm,
-    F = fun (_, Args) ->
-		LocaEnv = lists:foldl(fun ({{ident, Name}, Value}, CurEvn) ->
-					       dict:append(Name, Value, dict:erase(Name, CurEvn))
-				       end, Env, lists:zip(Locals, Args)),
-		ham_lisp:eval(LocaEnv, Body)
-	end,
-    ham_fun_storage:register(Function, F),
-    {F, ture, true}.
+  {subterm, Locals} = LocalForm,
+  F = fun (_, Args) ->
+    LocaEnv = lists:foldl(fun ({{ident, Name}, Value}, CurEvn) ->
+      dict:append(Name, Value, dict:erase(Name, CurEvn))
+    end, Env, lists:zip(Locals, Args)),
+    ham_lisp:eval(LocaEnv, Body)
+  end,
+  ham_fun_storage:register(Function, F),
+  {F, ture, true}.

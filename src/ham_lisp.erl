@@ -1,5 +1,5 @@
 %%%-------------------------------------------------------------------
-%%% @author Heinz N. Gies <heinz@Heinz-N-Giess-MacBook-Pro.local>
+%%% @author Heinz N. Gies <heinz@licenser.net> [http://blog.licenser.net]
 %%% @copyright (C) 2010, Heinz N. Gies
 %%% @doc
 %%%

@@ -1,5 +1,5 @@
 %%%-------------------------------------------------------------------
-%%% @author Heinz N. Gies <heinz@Heinz-N-Giess-MacBook-Pro.local>
+%%% @author Heinz N. Gies <heinz@licenser.net> [http://blog.licenser.net]
 %%% @copyright (C) 2010, Heinz N. Gies
 %%% @doc
 %%%
@@ -29,7 +29,7 @@
 %% @doc
 %% Starts the server
 %%
-%% @spec start_link() -> {ok, Pid} | ignore | {error, Error}
+%% @spec start_link(Sock) -> {ok, Pid} | ignore | {error, Error}
 %% @end
 %%--------------------------------------------------------------------
 start_link(Sock) ->
@@ -119,7 +119,7 @@ handle_info({tcp, _Port, Data}, #state{object = ObjID, mode={repl, global}} = St
     hamush:pemit(self(), "~s\n> ", [Result])
   catch
     _:_ -> hamush:pemit(self(), "Ooops, something went wrong!")
-  end
+  end,
   {noreply, State};
 handle_info({tcp, _Port, Data}, #state{object = ObjID, mode=object} = State) ->
     mushcmd:exec({self(), ObjID} , Data),

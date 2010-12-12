@@ -1,5 +1,5 @@
 %%%-------------------------------------------------------------------
-%%% @author Heinz N. Gies <heinz@Heinz-N-Giess-MacBook-Pro.local>
+%%% @author Heinz N. Gies <heinz@licenser.net> [http://blog.licenser.net]
 %%% @copyright (C) 2010, Heinz N. Gies
 %%% @doc
 %%%
@@ -12,61 +12,63 @@
 -export([init/0]).
 
 init () ->
-    ham_fun_storage:register("get", fun get/2),
-    ham_fun_storage:register("+", fun add/2),
-    ham_fun_storage:register("-", fun sub/2),
-    ham_fun_storage:register("*", fun mul/2),
-    ham_fun_storage:register("/", fun divide/2),
-    ham_fun_storage:register("u", fun u/2),
-    ham_fun_storage:register("cond", {fun lcond/2, false}),
-    ham_fun_storage:register("eq", fun leq/2),
-    ham_fun_storage:register("str", fun str/2),
-    ham_fun_storage:register("map", fun lmap/2),
-    ham_fun_storage:register("fold", fun lfold/2),
-    ham_fun_storage:register("lambda", {fun lambda/2, false}),
-    ham_fun_storage:register("let", {fun llet/2, false}).
+  ham_fun_storage:register("get", fun get/2),
+  ham_fun_storage:register("+", fun add/2),
+  ham_fun_storage:register("-", fun sub/2),
+  ham_fun_storage:register("*", fun mul/2),
+  ham_fun_storage:register("/", fun divide/2),
+  ham_fun_storage:register("u", fun u/2),
+  ham_fun_storage:register("cond", {fun lcond/2, false}),
+  ham_fun_storage:register("eq", fun leq/2),
+  ham_fun_storage:register("str", fun str/2),
+  ham_fun_storage:register("map", fun lmap/2),
+  ham_fun_storage:register("fold", fun lfold/2),
+  ham_fun_storage:register("lambda", {fun lambda/2, false}),
+  ham_fun_storage:register("let", {fun llet/2, false}).
 
 add(_Env, Args) ->
-    lists:foldl(fun (X, Sum) ->
-			X + Sum
-		end, 0, Args).
+  lists:foldl(fun (X, Sum) ->
+    X + Sum
+  end, 0, Args).
 sub(_Env, Args) ->
-    case Args of
-	[F | Rest] -> lists:foldl(fun (X, Sum) ->
-					 Sum - X
-				 end, F, Rest);
-	[] -> 0
-    end.
+  case Args of
+    [F | Rest] -> lists:foldl(fun (X, Sum) ->
+        Sum - X
+      end, F, Rest);
+    [] -> 0
+  end.
 mul(_Env, Args) ->
-    lists:foldl(fun (X, Sum) ->
-			X * Sum
-		end, 1, Args).
+  lists:foldl(fun (X, Sum) ->
+    X * Sum
+  end, 1, Args).
 divide(_Env, Args) ->
-    case Args of
-	[F | Rest] -> lists:foldl(fun (X, Sum) ->
-					  Sum / X
-				  end, F, Rest);
-	[] -> 1
-    end.
+  case Args of
+    [F | Rest] -> lists:foldl(fun (X, Sum) ->
+        Sum / X
+       end, F, Rest);
+    [] -> 1
+  end.
 llet(Env, [DeclsForm, Form]) ->
-    {subterm, Decls} = DeclsForm,
-    NewEnv = lists:foldl(fun ({subterm, [{ident, N}, T]}, CurEvn) ->
-				 dict:append(N, ham_lisp:eval(CurEvn, T), dict:erase(N, CurEvn))
-			 end, Env, Decls),
-    ham_lisp:eval(NewEnv, Form).
+  {subterm, Decls} = DeclsForm,
+  NewEnv = lists:foldl(fun ({subterm, [{ident, N}, T]}, CurEvn) ->
+    dict:append(N, ham_lisp:eval(CurEvn, T), dict:erase(N, CurEvn))
+  end, Env, Decls),
+  ham_lisp:eval(NewEnv, Form).
 
 get(Env, [What]) ->
-    [Actor] = dict:fetch(actor, Env),
-    case re:run(What, "(.*)/(.*)", [{capture, [1, 2], list}]) of
-	{match, [Obj, Attr]} -> case hamush:resolve(Actor,Obj) of
-				    {ok, Object} -> case hamush:get(Object, Attr) of
-							{ok, R} -> R;
-							_ -> "#-1 Not Found."
-						    end;
-				    _ -> "#-1 Not Found."
-				end;
-	_ -> "#-1 Not foun."
-    end.
+  [Actor] = dict:fetch(actor, Env),
+  case re:run(What, "(.*)/(.*)", [{capture, [1, 2], list}]) of
+    {match, [Obj, Attr]} -> 
+      case hamush:resolve(Actor,Obj) of
+        {ok, Object} ->
+          case hamush:get(Object, Attr) of
+            {ok, R} -> R;
+            _ -> "#-1 Not Found."
+          end;
+        _ -> "#-1 Not Found."
+      end;
+    _ -> "#-1 Not foun."
+  end.
 
 u(Env, [What]) ->
     [Actor] = dict:fetch(actor, Env),
