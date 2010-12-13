@@ -29,13 +29,13 @@ doc: all
 
 gh-pages: all
 	git commit
-        BRANCH=`git branch | grep "^*" | awk  '{ print $2 }'`
-        git symbolic-ref HEAD refs/heads/gh-pages
-        rm .git/index
-        mv doc/* .
-        git add *.html erlang.png *.css
+	BRANCH=`git branch | grep "^*" | awk  '{ print $2 }'`
+	git symbolic-ref HEAD refs/heads/gh-pages
+	rm .git/index
+	mv doc/* .
+	git add *.html erlang.png *.css
 	git clean -fdx
-        git commit -a -m "Github Pages Update."
-        git push origin gh-pages
-        git checkout $BRANCH
+	git commit -a -m "Github Pages Update."
+	git push origin gh-pages
+	git checkout $BRANCH
 

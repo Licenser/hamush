@@ -60,6 +60,7 @@ set_mode(Pid, Mode) ->
 %% @end
 %%--------------------------------------------------------------------
 init([Sock]) ->
+    hamush:pemit(self(), "Welcome to hamush.\n\nconnect <user> <password>\n"),
     inet:setopts(Sock, [{active, true}, {packet, line}]),
     {ok, #state{socket = Sock}}.
 

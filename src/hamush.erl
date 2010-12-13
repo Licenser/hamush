@@ -35,7 +35,7 @@
 %% @doc
 %% Lists all objects that are contained ObjID.
 %%
-%% @spec content(ObjID) -> [] | [IDs]
+%% @spec content(ObjID::integer()) -> [] | [integer()]
 %% @end
 %%--------------------------------------------------------------------
 content(ObjID) when is_integer(ObjID) ->
