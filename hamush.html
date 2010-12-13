@@ -77,7 +77,7 @@
 
 <h3 class="function"><a name="content-1">content/1</a></h3>
 <div class="spec">
-<p><tt>content(ObjID) -&gt; [] | [IDs]</tt></p>
+<p><tt>content(ObjID::integer()) -&gt; [] | [integer()]</tt></p>
 </div><p>
   Lists all objects that are contained ObjID.
  </p>
@@ -102,14 +102,16 @@
 
 <h3 class="function"><a name="create-3">create/3</a></h3>
 <div class="spec">
-<p><tt>create(Type, Name, Location) -&gt; Integer</tt></p>
+<p><tt>create(Type, Name::string(), Location::integer()) -&gt; ID::integer()</tt>
+<ul class="definitions"><li><tt>Type = thing | room | exit</tt></li>
+</ul></p>
 </div><p>
   creates a new object of Type with Name in Location
  </p>
 
 <h3 class="function"><a name="desc-2">desc/2</a></h3>
 <div class="spec">
-<p><tt>desc(ObjID, Observer) -&gt; String</tt></p>
+<p><tt>desc(ObjID::integer(), Observer::integer()) -&gt; string()</tt></p>
 </div><p>
   Returns the desc of an object by evaling it's DESCRIPTION
   attribute.
@@ -117,42 +119,51 @@
 
 <h3 class="function"><a name="eval-2">eval/2</a></h3>
 <div class="spec">
-<p><tt>eval(Code, Actor) -&gt; String</tt></p>
+<p><tt>eval(Code::string(), Actor::integer()) -&gt; string()</tt></p>
 </div><p>
   Evaluates Code from the point of view of Actor.
  </p>
 
 <h3 class="function"><a name="eval_get-3">eval_get/3</a></h3>
 <div class="spec">
-<p><tt>eval_get(ObjID, Attribute, Actor) -&gt; String</tt></p>
+<p><tt>eval_get(ObjID::integer(), Attribute::Attr, Actor::integer()) -&gt; string()</tt>
+<ul class="definitions"><li><tt>Attr = string() | atom()</tt></li>
+</ul></p>
 </div><p>
   Gets Attribute from Object and evaluates it from the POV of Actor.
  </p>
 
 <h3 class="function"><a name="exits-1">exits/1</a></h3>
 <div class="spec">
-<p><tt>exits(ObjID) -&gt; [] | [ExitIDs]</tt></p>
+<p><tt>exits(ObjID::integer()) -&gt; [] | [ExitID::integer()]</tt></p>
 </div><p>
   Lists all exits in a location.
  </p>
 
 <h3 class="function"><a name="fget-2">fget/2</a></h3>
 <div class="spec">
-<p><tt>fget(ObjID, Attr) -&gt; String</tt></p>
+<p><tt>fget(ObjID::integer(), Attr) -&gt; string()</tt>
+<ul class="definitions"><li><tt>Attr = string() | atom()</tt></li>
+</ul></p>
 </div><p>
   Gets on Attr from ObjID without modifying Attr.
  </p>
 
 <h3 class="function"><a name="fset-3">fset/3</a></h3>
 <div class="spec">
-<p><tt>fset(ObjID, Attr, Value) -&gt; nil</tt></p>
+<p><tt>fset(ObjID::integer(), Attr, Value) -&gt; nil()</tt>
+<ul class="definitions"><li><tt>Attr = string() | atom()</tt></li>
+<li><tt>Value = string() | integer()</tt></li>
+</ul></p>
 </div><p>
   Sets an Attr on an ObjID to Value, without touching Attr.
  </p>
 
 <h3 class="function"><a name="get-2">get/2</a></h3>
 <div class="spec">
-<p><tt>get(ObjID, Attr) -&gt; String</tt></p>
+<p><tt>get(ObjID::integer(), Attr) -&gt; string() | integer()</tt>
+<ul class="definitions"><li><tt>Attr = string() | atom()</tt></li>
+</ul></p>
 </div><p>
   Gets the Attr from ObjID. Unless Attr is atom it will be turned
   uppercase.
@@ -160,35 +171,35 @@
 
 <h3 class="function"><a name="location-1">location/1</a></h3>
 <div class="spec">
-<p><tt>location(ObjID) -&gt; LocationID</tt></p>
+<p><tt>location(ObjID::integer()) -&gt; LocationID::integer()</tt></p>
 </div><p>
   Returns the location of ObjID
  </p>
 
 <h3 class="function"><a name="move_to-2">move_to/2</a></h3>
 <div class="spec">
-<p><tt>move_to(ObjID, RoomID) -&gt; nil</tt></p>
+<p><tt>move_to(ObjID::integer(), RoomID::integer()) -&gt; nil()</tt></p>
 </div><p>
   moves ObjID to RoomID.
  </p>
 
 <h3 class="function"><a name="name-1">name/1</a></h3>
 <div class="spec">
-<p><tt>name(ObjID) -&gt; String</tt></p>
+<p><tt>name(ObjID::integer()) -&gt; string()</tt></p>
 </div><p>
   Returns the name of ObjID or an empty string of none is exitsant.
  </p>
 
 <h3 class="function"><a name="pemit-2">pemit/2</a></h3>
 <div class="spec">
-<p><tt>pemit(ObjID, Message) -&gt; nil</tt></p>
+<p><tt>pemit(ObjID::integer(), Message::string()) -&gt; nil()</tt></p>
 </div><p>
   Emits Message string to ObjID.
  </p>
 
 <h3 class="function"><a name="pemit-3">pemit/3</a></h3>
 <div class="spec">
-<p><tt>pemit(To, Format, Arguments) -&gt; nil</tt></p>
+<p><tt>pemit(ObjID::integer(), Format::string(), Arguments::list()) -&gt; nil()</tt></p>
 </div><p>
   Emits a message to ObjID using Format and Arguments as in
   io_lib:format/2.
@@ -196,14 +207,14 @@
 
 <h3 class="function"><a name="remit-2">remit/2</a></h3>
 <div class="spec">
-<p><tt>remit(ObjID, Message) -&gt; nil</tt></p>
+<p><tt>remit(ObjID::integer(), Message::string()) -&gt; nil()</tt></p>
 </div><p>
   Emits a Message to all objects in ObjID.
  </p>
 
 <h3 class="function"><a name="remit-3">remit/3</a></h3>
 <div class="spec">
-<p><tt>remit(ObjID, Format, Args) -&gt; nil</tt></p>
+<p><tt>remit(ObjID::integer(), Format::string(), Args::list()) -&gt; nil()</tt></p>
 </div><p>
   Emits a message to all objects in ObjID using Format and Args as
   in io_lib:format/2.
@@ -211,14 +222,14 @@
 
 <h3 class="function"><a name="remit_but-3">remit_but/3</a></h3>
 <div class="spec">
-<p><tt>remit_but(ObjID::OObjID, But, Message) -&gt; nil</tt></p>
+<p><tt>remit_but(ObjID::integer(), But::integer(), Message::string()) -&gt; nil()</tt></p>
 </div><p>
   Emits a message to all objects in ObjID but the object named But.
  </p>
 
 <h3 class="function"><a name="remit_but-4">remit_but/4</a></h3>
 <div class="spec">
-<p><tt>remit_but(ObjID, But, Format, Args) -&gt; nil</tt></p>
+<p><tt>remit_but(ObjID::integer(), But::integer(), Format::string(), Args::list()) -&gt; nil()</tt></p>
 </div><p>
   Emits a message to all objects in ObjID but the object named But
   using Format and Args as in io_lib:format/2.
@@ -226,7 +237,7 @@
 
 <h3 class="function"><a name="resolve-2">resolve/2</a></h3>
 <div class="spec">
-<p><tt>resolve(Observer, Lookup) -&gt; {ok, Pid}</tt></p>
+<p><tt>resolve(Observer::integer(), Lookup::string()) -&gt; {ok, Pid::pid()}</tt></p>
 </div><p>
   Resolves the an string to the object Pid of the Object.<br>
   <ul>
@@ -239,7 +250,10 @@
 
 <h3 class="function"><a name="set-3">set/3</a></h3>
 <div class="spec">
-<p><tt>set(ObjID, Attr, Value) -&gt; nil</tt></p>
+<p><tt>set(ObjID::integer(), Attr, Value) -&gt; nil()</tt>
+<ul class="definitions"><li><tt>Attr = string() | atom()</tt></li>
+<li><tt>Value = string() | integer()</tt></li>
+</ul></p>
 </div><p>
   Sets an Attr on an ObjID to Value. Attr is converted to uppercase,
   if Attr is an atom it is untouched otherwise it will converted to
@@ -248,6 +262,6 @@
 <hr>
 
 <div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
-<p><i>Generated by EDoc, Dec 13 2010, 20:49:19.</i></p>
+<p><i>Generated by EDoc, Dec 13 2010, 22:06:13.</i></p>
 </body>
 </html>
