@@ -1,4 +1,0 @@
-doc/*
-*.swp
-ebin/*.beam
-Mnesia.nonode@nohost/*
