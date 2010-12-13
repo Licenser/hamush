@@ -1,8 +1,8 @@
 %%%-------------------------------------------------------------------
 %%% @author Heinz N. Gies <heinz@Heinz-N-Giess-MacBook-Pro.local>
 %%% @copyright (C) 2010, Heinz N. Gies
-%%% @doc
-%%%
+%%% @doc This module offers an interface to the underlaying database.
+%%% 
 %%% @end
 %%% Created : 26 Aug 2010 by Heinz N. Gies <heinz@Heinz-N-Giess-MacBook-Pro.local>
 %%%-------------------------------------------------------------------
@@ -17,7 +17,7 @@
 %% @doc
 %% Inserts a object in the database or replaces it.
 %%
-%% @spec set(ID, Key, Value) -> {ok, Pid}
+%% @spec set(ID::integer(), Key::any(), Value::any()) -> {ok, Pid::pid}
 %% @end
 %%--------------------------------------------------------------------
 
@@ -34,12 +34,11 @@ set(ID, Attr, Value) ->
 
 %%--------------------------------------------------------------------
 %% @doc
-%% Looks up a key in the database
+%% Gets an attribute from an object in the database.
 %%
-%% @spec get(ID, Key) -> {ok, Value} | {error, not_found}
+%% @spec get(ID::integer(), Key::any()) -> {ok, Value::any()} | {error, not_found}
 %% @end
 %%--------------------------------------------------------------------
-
 get(ID, Attr) ->
   try
     {ok, Pid} = mdb_store:lookup(ID),
@@ -51,7 +50,17 @@ get(ID, Attr) ->
       {error, not_found}
   end.
 
-
+%%--------------------------------------------------------------------
+%% @doc
+%% Tries to match a object on some characteristics.
+%%
+%% @spec match(Match) -> {ok, Value::any()} | {error, not_found}
+%%  Match = {Type, Name} | {Type, Name, Location}
+%%  Type = thing | exit | room
+%%  Name = string()
+%%  Location = integer()
+%% @end
+%%--------------------------------------------------------------------
 match(Match) ->
   try 
     mdb_store:match(Match)
@@ -62,9 +71,9 @@ match(Match) ->
 	
 %%--------------------------------------------------------------------
 %% @doc
-%% Deletes key.
+%% Deletes object.
 %%
-%% @spec delete(ID) -> ok
+%% @spec delete(ID::integer()) -> ok
 %% @end
 %%--------------------------------------------------------------------
 delete(ID) ->
@@ -75,6 +84,16 @@ delete(ID) ->
       ok
   end.
 
+%%--------------------------------------------------------------------
+%% @doc
+%% Adds a Object to a TCP connection to bind those two.
+%%
+%% @spec add_connection(Obj, Con::pid()) -> ok
+%%  Obj = ID | Pid
+%%  ID = integer() 
+%%  Pid = pid()
+%% @end
+%%--------------------------------------------------------------------
 add_connection(ID, Con) when is_integer(ID) ->
   {ok, Pid} = mdb_store:lookup(ID),
   add_connection(Pid, Con);

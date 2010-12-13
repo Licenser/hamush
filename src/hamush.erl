@@ -45,7 +45,7 @@ content(ObjID) when is_integer(ObjID) ->
 %% @doc
 %% Lists all exits in a location.
 %%
-%% @spec exits(ObjID) -> [] | [ExitIDs]
+%% @spec exits(ObjID::integer()) -> [] | [ExitID::integer()]
 %% @end
 %%--------------------------------------------------------------------
 exits(ObjID) when is_integer(ObjID) ->
@@ -55,7 +55,7 @@ exits(ObjID) when is_integer(ObjID) ->
 %% @doc
 %% moves ObjID to RoomID.
 %%
-%% @spec move_to(ObjID, RoomID) -> nil
+%% @spec move_to(ObjID::integer(), RoomID::integer()) -> nil()
 %% @end
 %%--------------------------------------------------------------------
 move_to(ObjID, RoomID) when is_integer(ObjID), is_integer(RoomID)->
@@ -69,7 +69,7 @@ move_to(ObjID, RoomID) when is_integer(ObjID), is_integer(RoomID)->
 %% @doc
 %% Returns the location of ObjID
 %%
-%% @spec location(ObjID) -> LocationID
+%% @spec location(ObjID::integer()) -> LocationID::integer()
 %% @end
 %%--------------------------------------------------------------------
 location(ObjID) when is_integer(ObjID) ->
@@ -82,7 +82,9 @@ location(ObjID) when is_integer(ObjID) ->
 %% if Attr is an atom it is untouched otherwise it will converted to
 %% upercase.
 %%
-%% @spec set(ObjID, Attr, Value) -> nil
+%% @spec set(ObjID::integer(), Attr, Value) -> nil()
+%%  Attr = string() | atom()
+%%  Value = string() | integer()
 %% @end
 %%--------------------------------------------------------------------
 set(ObjID, Attr, Value) when is_integer(ObjID), is_atom(Attr) ->
@@ -94,7 +96,9 @@ set(ObjID, Attr, Value) when is_integer(ObjID) ->
 %% @doc
 %% Sets an Attr on an ObjID to Value, without touching Attr.
 %%
-%% @spec fset(ObjID, Attr, Value) -> nil
+%% @spec fset(ObjID::integer(), Attr, Value) -> nil()
+%%  Attr = string() | atom()
+%%  Value = string() | integer()
 %% @end
 %%--------------------------------------------------------------------
 fset(ObjID, Attr, Value) when is_integer(ObjID) ->
@@ -105,7 +109,8 @@ fset(ObjID, Attr, Value) when is_integer(ObjID) ->
 %% Gets the Attr from ObjID. Unless Attr is atom it will be turned
 %% uppercase.
 %%
-%% @spec get(ObjID, Attr) -> String
+%% @spec get(ObjID::integer(), Attr) -> string() | integer()
+%%  Attr = string() | atom()
 %% @end
 %%--------------------------------------------------------------------
 get(ObjID, Attr) when is_integer(ObjID), is_atom(Attr) ->
@@ -117,7 +122,8 @@ get(ObjID, Attr) when is_integer(ObjID) ->
 %% @doc
 %% Gets on Attr from ObjID without modifying Attr.
 %%
-%% @spec fget(ObjID, Attr) -> String
+%% @spec fget(ObjID::integer(), Attr) -> string()
+%%  Attr = string() | atom()
 %% @end
 %%--------------------------------------------------------------------
 fget(ObjID, Attr) when is_integer(ObjID) ->
@@ -127,7 +133,7 @@ fget(ObjID, Attr) when is_integer(ObjID) ->
 %% @doc
 %% Returns the name of ObjID or an empty string of none is exitsant.
 %%
-%% @spec name(ObjID) -> String
+%% @spec name(ObjID::integer()) -> string()
 %% @end
 %%--------------------------------------------------------------------
 name(ObjID) when is_integer(ObjID) ->
@@ -149,7 +155,8 @@ create(Type, Name) ->
 %% @doc
 %% creates a new object of Type with Name in Location
 %%
-%% @spec create(Type, Name, Location) -> Integer
+%% @spec create(Type, Name::string(), Location::integer()) -> ID::integer()
+%%  Type = thing | room | exit
 %% @end
 %%--------------------------------------------------------------------
 create(Type, Name, Location) ->
@@ -159,7 +166,7 @@ create(Type, Name, Location) ->
 %% @doc
 %% Emits Message string to ObjID.
 %%
-%% @spec pemit(ObjID, Message) -> nil
+%% @spec pemit(ObjID::integer(), Message::string()) -> nil()
 %% @end
 %%--------------------------------------------------------------------
 pemit(ObjID, Message) when is_integer(ObjID) ->
@@ -176,18 +183,18 @@ pemit(Pid, Message) when is_pid(Pid) ->
 %% Emits a message to ObjID using Format and Arguments as in
 %% io_lib:format/2.
 %%
-%% @spec pemit(To, Format, Arguments) -> nil
+%% @spec pemit(ObjID::integer(), Format::string(), Arguments::list()) -> nil()
 %% @end
 %%--------------------------------------------------------------------
-pemit(To, Format, Arguments) ->
-  pemit(To, io_lib:format(Format, Arguments)).
+pemit(ObjID, Format, Arguments) ->
+  pemit(ObjID, io_lib:format(Format, Arguments)).
 
 %%--------------------------------------------------------------------
 %% @doc
 %% Emits a message to all objects in ObjID but the object named But
 %% using Format and Args as in io_lib:format/2.
 %%
-%% @spec remit_but(ObjID, But, Format, Args) -> nil
+%% @spec remit_but(ObjID::integer(), But::integer(), Format::string(), Args::list()) -> nil()
 %% @end
 %%--------------------------------------------------------------------
 remit_but(ObjID, But, Format, Args) when is_integer(ObjID) ->
@@ -197,7 +204,7 @@ remit_but(ObjID, But, Format, Args) when is_integer(ObjID) ->
 %% @doc
 %% Emits a message to all objects in ObjID but the object named But.
 %%
-%% @spec remit_but(OObjID, But, Message) -> nil
+%% @spec remit_but(ObjID::integer(), But::integer(), Message::string()) -> nil()
 %% @end
 %%--------------------------------------------------------------------
 remit_but(ObjID, But, Message) when is_integer(ObjID) ->
@@ -221,7 +228,7 @@ remit_but(ObjID, But, Message) when is_integer(ObjID) ->
 %% Emits a message to all objects in ObjID using Format and Args as 
 %% in io_lib:format/2.
 %%
-%% @spec remit(ObjID, Format, Args) -> nil
+%% @spec remit(ObjID::integer(), Format::string(), Args::list()) -> nil()
 %% @end
 %%--------------------------------------------------------------------
 remit(ObjID, Format, Args) when is_integer(ObjID) ->
@@ -231,7 +238,7 @@ remit(ObjID, Format, Args) when is_integer(ObjID) ->
 %% @doc
 %% Emits a Message to all objects in ObjID.
 %%
-%% @spec remit(ObjID, Message) -> nil
+%% @spec remit(ObjID::integer(), Message::string()) -> nil()
 %% @end
 %%--------------------------------------------------------------------
 remit(ObjID, Message) when is_integer(ObjID) ->
@@ -250,7 +257,7 @@ remit(ObjID, Message) when is_integer(ObjID) ->
 %%  <li>"&lt;name&gt;" returns the object with name in the Observers location.</li>
 %%  <li>"*&lt;name&gt;" a global lookup for name.</li>
 %% </ul>
-%% @spec resolve(Observer, Lookup) -> {ok, Pid}
+%% @spec resolve(Observer::integer(), Lookup::string()) -> {ok, Pid::pid()}
 %% @end
 %%--------------------------------------------------------------------
 resolve(Observer, "me") when is_integer(Observer) ->
@@ -273,7 +280,8 @@ resolve(Observer, Lookup) when is_integer(Observer) ->
 %% @doc
 %% Filters a list of objects by their name
 %%
-%% @spec filter_by_name(Name, ObjIDs) -> [ObjIDs]
+%% @spec filter_by_name(Name::string(), ObjIDs::list()) -> ObjIDs::list()
+%%  ObjIDs = [ID::integer()]
 %% @end
 %%--------------------------------------------------------------------
 filter_by_name(Name, ObjIDs) ->
@@ -293,7 +301,7 @@ filter_by_name(Name, ObjIDs) ->
 %% Returns the desc of an object by evaling it's DESCRIPTION
 %% attribute.
 %%
-%% @spec desc(ObjID, Observer) -> String
+%% @spec desc(ObjID::integer(), Observer::integer()) -> string()
 %% @end
 %%--------------------------------------------------------------------
 desc(ObjID, Observer) -> 
@@ -307,7 +315,8 @@ desc(ObjID, Observer) ->
 %% @doc
 %% Gets Attribute from Object and evaluates it from the POV of Actor.
 %%
-%% @spec eval_get(ObjID, Attribute, Actor) -> String
+%% @spec eval_get(ObjID::integer(), Attr, Actor::integer()) -> string()
+%%  Attr = string() | atom()
 %% @end
 %%--------------------------------------------------------------------
 eval_get(ObjID, Attribute, Actor) ->
@@ -320,7 +329,7 @@ eval_get(ObjID, Attribute, Actor) ->
 %% @doc
 %% Evaluates Code from the point of view of Actor.
 %%
-%% @spec eval(Code, Actor) -> String
+%% @spec eval(Code::string(), Actor::integer()) -> string()
 %% @end
 %%--------------------------------------------------------------------
 eval(Code, Actor) ->

@@ -29,21 +29,45 @@
 %% @doc
 %% Starts the server
 %%
-%% @spec start_link(Sock) -> {ok, Pid} | ignore | {error, Error}
+%% @spec start_link(Sock::socket()) -> {ok, Pid::pid()} | ignore | {error, Error}
 %% @end
 %%--------------------------------------------------------------------
 start_link(Sock) ->
-    gen_server:start_link(?MODULE, [Sock], []).
+  gen_server:start_link(?MODULE, [Sock], []).
 
 
+%%--------------------------------------------------------------------
+%% @doc
+%% Sends text to the connection.
+%%
+%% @spec send(Pid::pid(), Text::string()) -> nil()
+%% @end
+%%--------------------------------------------------------------------
 send(Pid, Text) ->
-    gen_server:cast(Pid, {send, Text}). 
+  gen_server:cast(Pid, {send, Text}). 
 
+%%--------------------------------------------------------------------
+%% @doc
+%% Binds this connection to a MUSH Object.
+%%
+%% @spec connect_object(Pid::pid(), ObjID::integer()) -> nil()
+%% @end
+%%--------------------------------------------------------------------
 connect_object(Pid, ObjID) when is_pid(Pid), is_integer(ObjID)->
-    gen_server:cast(Pid, {connect_object, ObjID}).
+  gen_server:cast(Pid, {connect_object, ObjID}).
 
+%%--------------------------------------------------------------------
+%% @doc
+%% Sets the mode of the connection currently {repl, general} and
+%% object are supported.
+%%
+%% @spec set_mode(Pid::pid(), Mode) -> nil()
+%%  Mode = {repl, general} | object
+%% @end
+%%--------------------------------------------------------------------
 set_mode(Pid, Mode) ->
-    gen_server:cast(Pid, {set_mode, Mode}).
+  gen_server:cast(Pid, {set_mode, Mode}).
+
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================
@@ -53,7 +77,7 @@ set_mode(Pid, Mode) ->
 %% @doc
 %% Initializes the server
 %%
-%% @spec init(Args) -> {ok, State} |
+%% @spec init([Socket]) -> {ok, State} |
 %%                     {ok, State, Timeout} |
 %%                     ignore |
 %%                     {stop, Reason}
