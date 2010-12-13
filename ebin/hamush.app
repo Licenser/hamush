@@ -34,6 +34,7 @@
              mcmd_cmd_storage,
              mcmd_sup,
              mcmd_worker,
+             text_srv,
              mcmd_worker_sup,
              mushcmd]},
   {registered, []},

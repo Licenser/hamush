@@ -67,7 +67,10 @@ init([]) ->
  		 Restart, Shutdown, supervisor, [mdb_sup]},
  		Commands = {mcmd_sup,  {mcmd_sup, start_link, []},
  		 Restart, Shutdown, supervisor, [mcmd_sup]},
-    {ok, {SupFlags, [DB, Commands, Functions, Connections]}}.
+     Texts = {text_srv,  {text_srv, start_link, []},
+  		 Restart, Shutdown, worker, [text_srv]},
+ 		 
+    {ok, {SupFlags, [DB, Commands, Functions, Connections, Texts]}}.
 
 %%%===================================================================
 %%% Internal functions

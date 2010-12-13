@@ -1,0 +1,5 @@
+Welcome to HAMush. This is highly experimentatl so don't be upset if something crashes.
+
+You can:
+
+connect <user> <password>

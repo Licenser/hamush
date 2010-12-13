@@ -4,14 +4,14 @@
 %%% @doc
 %%%
 %%% @end
-%%% Created :  1 Sep 2010 by Heinz N. Gies <heinz@Heinz-N-Giess-MacBook-Pro.local>
+%%% Created : 29 Aug 2010 by Heinz N. Gies <heinz@Heinz-N-Giess-MacBook-Pro.local>
 %%%-------------------------------------------------------------------
--module(mcon_connection).
+-module(text_srv).
 
 -behaviour(gen_server).
 
 %% API
--export([start_link/1, send/2, connect_object/2, set_mode/2]).
+-export([start_link/0, text/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -19,7 +19,7 @@
 
 -define(SERVER, ?MODULE). 
 
--record(state, {socket, object=undef, mode=object}).
+-record(state, {texts=dict:new()}).
 
 %%%===================================================================
 %%% API
@@ -29,44 +29,14 @@
 %% @doc
 %% Starts the server
 %%
-%% @spec start_link(Sock::socket()) -> {ok, Pid::pid()} | ignore | {error, Error}
+%% @spec start_link(Pid, Cmd) -> {ok, Pid} | ignore | {error, Error}
 %% @end
 %%--------------------------------------------------------------------
-start_link(Sock) ->
-  gen_server:start_link(?MODULE, [Sock], []).
+start_link() ->
+  gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
 
-
-%%--------------------------------------------------------------------
-%% @doc
-%% Sends text to the connection.
-%%
-%% @spec send(Pid::pid(), Text::string()) -> nil()
-%% @end
-%%--------------------------------------------------------------------
-send(Pid, Text) ->
-  gen_server:cast(Pid, {send, Text}). 
-
-%%--------------------------------------------------------------------
-%% @doc
-%% Binds this connection to a MUSH Object.
-%%
-%% @spec connect_object(Pid::pid(), ObjID::integer()) -> nil()
-%% @end
-%%--------------------------------------------------------------------
-connect_object(Pid, ObjID) when is_pid(Pid), is_integer(ObjID)->
-  gen_server:cast(Pid, {connect_object, ObjID}).
-
-%%--------------------------------------------------------------------
-%% @doc
-%% Sets the mode of the connection currently {repl, general} and
-%% object are supported.
-%%
-%% @spec set_mode(Pid::pid(), Mode) -> nil()
-%%  Mode = {repl, general} | object
-%% @end
-%%--------------------------------------------------------------------
-set_mode(Pid, Mode) ->
-  gen_server:cast(Pid, {set_mode, Mode}).
+text(ID) ->
+  gen_server:call(?SERVER, {text, ID}).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -77,16 +47,14 @@ set_mode(Pid, Mode) ->
 %% @doc
 %% Initializes the server
 %%
-%% @spec init([Socket]) -> {ok, State} |
+%% @spec init(Args) -> {ok, State} |
 %%                     {ok, State, Timeout} |
 %%                     ignore |
 %%                     {stop, Reason}
 %% @end
 %%--------------------------------------------------------------------
-init([Sock]) ->
-    hamush:pemit(self(), hamush:text("connect")),
-    inet:setopts(Sock, [{active, true}, {packet, line}]),
-    {ok, #state{socket = Sock}}.
+init([]) ->
+  {ok, #state{}, 1}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -102,9 +70,14 @@ init([Sock]) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
+handle_call({text, ID}, _From, #state{texts = Texts} = State) ->
+  case dict:find(ID, Texts) of
+    {ok, [Value]} -> {reply, Value, State};
+    _ -> {reply, {error, not_found}, State}
+  end;
 handle_call(_Request, _From, State) ->
-    Reply = ok,
-    {reply, Reply, State}.
+  Reply = ok,
+  {reply, Reply, State}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -116,14 +89,6 @@ handle_call(_Request, _From, State) ->
 %%                                  {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_cast({send, Text}, #state{socket = Socket} = State) ->
-    gen_tcp:send(Socket, Text),
-    {noreply, State};
-handle_cast({set_mode, Mode}, State) ->
-    {noreply, State#state{mode = Mode}};
-handle_cast({connect_object, ObjID}, State) ->
-    mushdb:add_connection(ObjID, self()),
-    {noreply, State#state{object = ObjID}};
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
@@ -137,18 +102,8 @@ handle_cast(_Msg, State) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_info({tcp, _Port, Data}, #state{object = ObjID, mode={repl, global}} = State) ->
-  {ok, Pid} = mdb_store:lookup(ObjID),
-  try 
-    Result = mdb_element:eval(Pid, Data),
-    hamush:pemit(self(), "~s\n> ", [Result])
-  catch
-    _:_ -> hamush:pemit(self(), "Ooops, something went wrong!")
-  end,
-  {noreply, State};
-handle_info({tcp, _Port, Data}, #state{object = ObjID, mode=object} = State) ->
-    mushcmd:exec({self(), ObjID} , Data),
-    {noreply, State};
+handle_info(timeout, _State) ->
+    {noreply, #state{texts = map_files(list_files("texts"))}};
 handle_info(_Info, State) ->
     {noreply, State}.
 
@@ -163,8 +118,7 @@ handle_info(_Info, State) ->
 %% @spec terminate(Reason, State) -> void()
 %% @end
 %%--------------------------------------------------------------------
-terminate(_Reason, #state{socket = Socket}) ->
-    gen_tcp:close(Socket),
+terminate(_Reason, _State) ->
     ok.
 
 %%--------------------------------------------------------------------
@@ -181,3 +135,48 @@ code_change(_OldVsn, State, _Extra) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
+
+
+
+handle_file(File, Name, Dict) ->
+  {ok, Cnt} = file:read_file(File),
+  Content = erlang:bitstring_to_list(Cnt),
+  dict:append(Name, Content, Dict).
+  
+join_with(A, J, B) ->
+  if
+    A =:= "" ->
+      B;
+    true ->
+     string:concat(A, string:concat(J, B))
+  end.
+
+list_files(Dir) ->
+  {ok, Files} = file:list_dir(Dir),
+  lists:map(
+    fun (File) ->
+      NewFile = join_with(Dir, "/", File),
+      case file:read_file_info(NewFile) of
+        {ok, {file_info, _, directory, _,
+          _, _, _,
+          _, _, _, _, _, _ ,_}} -> 
+          {File, list_files(NewFile)};
+        _ -> 
+          File
+      end
+    end, Files).
+
+map_files(Files) ->
+  map_files("texts", "", Files, dict:new()).
+  
+map_files(Path, Prefix, Files, Dict) ->
+  lists:foldl(
+  fun(File, D) ->
+    case File of
+      {Directory, Fs} -> 
+        map_files(join_with(Path, "/", Directory), join_with(Prefix, ".", Directory), Fs, D);
+      File ->
+        Name = re:replace(File, "\\.txt$", "",[{return,list}]),
+        handle_file(join_with(Path, "/", File), join_with(Prefix, ".", Name), D)
+    end
+  end, Dict, Files).
