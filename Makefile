@@ -34,6 +34,7 @@ gh-pages: all
         rm .git/index
         mv doc/* .
         git add *.html erlang.png *.css
+	git clean -fdx
         git commit -a -m "Github Pages Update."
         git push origin gh-pages
         git checkout $BRANCH
