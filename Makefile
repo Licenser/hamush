@@ -26,3 +26,15 @@ shell: all
 
 doc: all
 	$(ERL) -pa $(BIN_DIR) -eval 'edoc:application($(PROJECT), ".", []).'
+
+gh-pages: all
+	git commit
+        BRANCH=`git branch | grep "^*" | awk  '{ print $2 }'`
+        git symbolic-ref HEAD refs/heads/gh-pages
+        rm .git/index
+        mv doc/* .
+        git add *.html erlang.png *.css
+        git commit -a -m "Github Pages Update."
+        git push origin gh-pages
+        git checkout $BRANCH
+
