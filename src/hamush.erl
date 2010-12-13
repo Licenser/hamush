@@ -241,14 +241,15 @@ remit(ObjID, Message) when is_integer(ObjID) ->
   end, Content).
 
 %%--------------------------------------------------------------------
-%% @ doc
-%% Resolves the an string to the object Pid of the Object.
-%% * "me" returns the Observer.
-%% * "here" returns the location of the resolver.
-%% * "#<id>" returns the oject with id .
-%% * "<name>" returns the object with name in the Observers location.
-%% * "*<name>" a global lookup for name.
-%% 
+%% @doc
+%% Resolves the an string to the object Pid of the Object.<br/>
+%% <ul>
+%%  <li>"me" returns the Observer.</li>
+%%  <li>"here" returns the location of the resolver.</li>
+%%  <li>"#&lt;id&gt;" returns the oject with id .</li>
+%%  <li>"&lt;name&gt;" returns the object with name in the Observers location.</li>
+%%  <li>"*&lt;name&gt;" a global lookup for name.</li>
+%% </ul>
 %% @spec resolve(Observer, Lookup) -> {ok, Pid}
 %% @end
 %%--------------------------------------------------------------------
