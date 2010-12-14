@@ -28,7 +28,7 @@ doc: all
 	$(ERL) -pa $(BIN_DIR) -eval 'edoc:application($(PROJECT), ".", []).'
 
 gh-pages: all
-	@git commit -a
+	git commit -a
 	BRANCH=`git branch | grep "^*" | awk  '{ print $2 }'`
 	git symbolic-ref HEAD refs/heads/gh-pages
 	rm .git/index
